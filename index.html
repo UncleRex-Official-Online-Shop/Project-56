@@ -1,0 +1,92 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Thabiso's Hustle Shop</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f3f4f6;
+      margin: 0;
+      padding: 0;
+    }
+    header {
+      background: #111827;
+      color: #fff;
+      padding: 20px;
+      text-align: center;
+    }
+    .shop {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 20px;
+      padding: 20px;
+    }
+    .item {
+      background: white;
+      border-radius: 10px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      padding: 15px;
+      text-align: center;
+    }
+    .item img {
+      max-width: 100%;
+      height: 150px;
+      object-fit: cover;
+      border-radius: 10px;
+    }
+    .item h3 {
+      margin: 10px 0 5px;
+    }
+    .item p {
+      margin: 0;
+      color: #4b5563;
+    }
+    .price {
+      font-weight: bold;
+      color: #10b981;
+      margin-top: 5px;
+    }
+    .button {
+      display: inline-block;
+      margin-top: 10px;
+      background: #2563eb;
+      color: white;
+      padding: 10px 15px;
+      border-radius: 5px;
+      text-decoration: none;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Thabiso's Digital Hustle Shop</h1>
+    <p>Buy PDFs, posters, captions, logos, and more — direct to your WhatsApp</p>
+  </header>
+  <main class="shop">
+    <div class="item">
+      <img src="https://placehold.co/300x150/blue/white?text=CV+Template" alt="CV Template">
+      <h3>CV Template</h3>
+      <p>Professional CV ready to edit in Word</p>
+      <div class="price">R50</div>
+      <a href="https://wa.me/0000000000" class="button">Order on WhatsApp</a>
+    </div>
+    <div class="item">
+      <img src="https://placehold.co/300x150/green/white?text=Poster+Design" alt="Poster Design">
+      <h3>Event Poster</h3>
+      <p>Get a custom event flyer for your gig or ad</p>
+      <div class="price">R70</div>
+      <a href="https://wa.me/0000000000" class="button">Order on WhatsApp</a>
+    </div>
+    <div class="item">
+      <img src="https://placehold.co/300x150/red/white?text=Love+Letter" alt="Love Letter">
+      <h3>Custom Love Letter</h3>
+      <p>Let me write the perfect message for your person ❤️</p>
+      <div class="price">R30</div>
+      <a href="https://wa.me/0000000000" class="button">Order on WhatsApp</a>
+    </div>
+  </main>
+</body>
+</html>
