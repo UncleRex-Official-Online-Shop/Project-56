@@ -1,0 +1,85 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Project 57 – Uncle Rex Digital Store (Live Connected)</title>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: 'Montserrat', sans-serif; background: #f9f9f9; margin: 0; padding: 0; }
+    header { background: black; color: gold; padding: 1rem 2rem; display: flex; justify-content: space-between; }
+    nav a { color: white; margin-left: 1rem; text-decoration: none; }
+    nav a:hover { color: gold; }
+    section { padding: 2rem; max-width: 800px; margin: auto; }
+    .btn { background: gold; border: none; padding: 0.6rem 1.2rem; border-radius: 5px; cursor: pointer; font-weight: bold; }
+    form input, form textarea { width: 100%; padding: 0.8rem; margin-top: 0.8rem; border-radius: 5px; border: 1px solid #ccc; }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>Uncle Rex</h1>
+  <nav>
+    <a href="#">Home</a>
+    <a href="#products">Products</a>
+    <a href="#contact">Contact</a>
+  </nav>
+</header>
+
+<section id="contact">
+  <h2>Contact Us</h2>
+  <form id="contact-form">
+    <input name="name" type="text" placeholder="Your Name" required />
+    <input name="email" type="email" placeholder="Your Email" required />
+    <textarea name="message" placeholder="Your Message" required></textarea>
+    <button class="btn" type="submit">Send Message</button>
+  </form>
+</section>
+
+<script type="module">
+  import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+  import { getFirestore, collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyCqgOab9u1bb5yqDBC9iQNZkBJrl0hUSPY",
+    authDomain: "unclerexstore.firebaseapp.com",
+    databaseURL: "https://unclerexstore-default-rtdb.europe-west1.firebasedatabase.app",
+    projectId: "unclerexstore",
+    storageBucket: "unclerexstore.firebasestorage.app",
+    messagingSenderId: "76853926066",
+    appId: "1:76853926066:web:97ce9dc0eab990907151ab"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+
+  document.getElementById('contact-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const name = e.target.name.value.trim();
+    const email = e.target.email.value.trim();
+    const message = e.target.message.value.trim();
+
+    if (!name || !email || !message) {
+      alert('Please fill in all fields.');
+      return;
+    }
+
+    try {
+      await addDoc(collection(db, 'messages'), {
+        name,
+        email,
+        message,
+        timestamp: serverTimestamp()
+      });
+      alert('Message sent successfully!');
+      e.target.reset();
+    } catch (err) {
+      console.error('Error sending message:', err);
+      alert('Something went wrong. Please try again later.');
+    }
+  });
+</script>
+
+</body>
+</html>
