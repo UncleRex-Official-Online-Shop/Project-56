@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Uncle Rex – Ultimate Edition</title>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Montserrat', sans-serif;
+      background: var(--bg, #f5f5f5);
+      color: var(--text, #000);
+      transition: background 0.3s, color 0.3s;
+    }
+    header {
+      background: #000;
+      color: #fff;
+      text-align: center;
+      padding: 1rem;
+    }
+    .nav-tabs {
+      display: flex;
+      justify-content: space-around;
+      background: #fff;
+      border-bottom: 1px solid #ddd;
+    }
+    .nav-tabs a {
+      color: #333;
+      text-decoration: none;
+      font-weight: bold;
+      padding: 0.5rem 1rem;
+      text-align: center;
+    }
+    .section {
+      padding: 2rem;
+      display: none;
+    }
+    .active {
+      display: block !important;
+    }
+    .btn {
+      background: gold;
+      color: black;
+      padding: 0.7rem 1.5rem;
+      border: none;
+      border-radius: 5px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    .input, input, textarea {
+      display: block;
+      width: 100%;
+      padding: 0.7rem;
+      margin: 1rem 0;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+    .product, .review, .order {
+      background: #fff;
+      border-radius: 10px;
+      padding: 1rem;
+      margin-bottom: 1rem;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    .dark-mode {
+      --bg: #121212;
+      --text: #f5f5f5;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>Uncle Rex Official Store</h1>
+</header>
+
+<nav class="nav-tabs">
+  <a href="#" onclick="showSection('home')"><i class="fas fa-home"></i> Home</a>
+  <a href="#" onclick="showSection('products')"><i class="fas fa-box"></i> Products</a>
+  <a href="#" onclick="showSection('reviews')"><i class="fas fa-star"></i> Reviews</a>
+  <a href="#" onclick="showSection('contact')"><i class="fas fa-envelope"></i> Contact</a>
+  <a href="#" onclick="showSection('dashboard')"><i class="fas fa-chart-line"></i> Dashboard</a>
+  <a href="#" onclick="toggleTheme()"><i class="fas fa-adjust"></i> Theme</a>
+</nav>
+
+<section id="home" class="section active">
+  <h2>Welcome to Uncle Rex</h2>
+  <p>We craft CVs, love letters, resumes, designs, and more — just for you.</p>
+  <button class="btn" onclick="showSection('products')">Shop Now</button>
+</section>
+  <section id="products" class="section">
+  <h2>Products</h2>
+  <div id="product-list"></div>
+</section>
+
+<section id="reviews" class="section">
+  <h2>Admin Reviews</h2>
+  <div id="review-list"></div>
+</section>
+
+<section id="contact" class="section">
+  <h2>Contact Us</h2>
+  <form id="contact-form">
+    <input type="text" name="name" placeholder="Your Name" required />
+    <input type="email" name="email" placeholder="Your Email" required />
+    <textarea name="message" placeholder="Your Message" required></textarea>
+    <button type="submit" class="btn">Send Message</button>
+  </form>
+</section>
+
+<section id="dashboard" class="section">
+  <h2>Admin Login</h2>
+  <div id="admin-login">
+    <input type="email" id="admin-email" placeholder="Admin Email" />
+    <input type="password" id="admin-password" placeholder="Password" />
+    <button class="btn" onclick="loginAdmin()">Login</button>
+  </div>
+
+  <div id="admin-panel" style="display:none;">
+    <h3>Upload Product</h3>
+    <input type="text" id="product-title" placeholder="Title" />
+    <input type="text" id="product-description" placeholder="Description" />
+    <input type="file" id="product-image" />
+    <button class="btn" onclick="uploadProduct()">Upload Product</button>
+
+    <hr />
+    <h3>Post Review</h3>
+    <textarea id="review-text" placeholder="Write a review..."></textarea>
+    <input type="file" id="review-image" />
+    <button class="btn" onclick="uploadReview()">Post Review</button>
+
+    <hr />
+    <h3>Orders</h3>
+    <div id="order-list"></div>
+  </div>
+</section>
+
+<footer style="text-align:center; padding:1rem; background:#000; color:#fff;">
+  &copy; 2025 Uncle Rex Store — All rights reserved.
+</footer>
+  <script type="module">
+  import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+  import { getFirestore, collection, addDoc, getDocs, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+  import { getAuth, signInWithEmailAndPassword } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyCqgOab9u1bb5yqDBC9iQNZkBJrl0hUSPY",
+    authDomain: "unclerexstore.firebaseapp.com",
+    projectId: "unclerexstore",
+    storageBucket: "unclerexstore.firebasestorage.app",
+    messagingSenderId: "76853926066",
+    appId: "1:76853926066:web:97ce9dc0eab990907151ab"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+  const auth = getAuth(app);
+
+  async function loadProducts() {
+    const container = document.getElementById("product-list");
+    container.innerHTML = "";
+    const snap = await getDocs(collection(db, "products"));
+    snap.forEach(doc => {
+      const p = doc.data();
+      container.innerHTML += `
+        <div class="product">
+          <img src="${p.image}" style="width:100%;border-radius:8px" />
+          <h3>${p.title}</h3>
+          <p>${p.description}</p>
+          <button class="btn" onclick='checkout("${p.title}")'>Buy with M-Pesa</button>
+        </div>`;
+    });
+  }
+
+  async function loadReviews() {
+    const container = document.getElementById("review-list");
+    container.innerHTML = "";
+    const snap = await getDocs(collection(db, "reviews"));
+    snap.forEach(doc => {
+      const r = doc.data();
+      container.innerHTML += `
+        <div class="review">
+          <p>${r.text}</p>
+          ${r.image ? `<img src="${r.image}" style="width:100%;border-radius:8px" />` : ""}
+        </div>`;
+    });
+  }
+
+  async function checkout(itemTitle) {
+    const name = prompt("Enter your name:");
+    const ref = prompt("Enter M-Pesa reference:");
+    if (!name || !ref) return alert("Cancelled.");
+    const order = {
+      title: itemTitle,
+      name,
+      ref,
+      status: "pending",
+      timestamp: serverTimestamp()
+    };
+    await addDoc(collection(db, "orders"), order);
+    alert("Order placed! You’ll be contacted via WhatsApp.");
+    notifyWhatsApp(name, itemTitle, ref);
+  }
+
+  async function notifyWhatsApp(name, item, ref) {
+    const msg = encodeURIComponent(`🛍 New Order\n👤 Name: ${name}\n📦 Item: ${item}\n📲 Ref: ${ref}`);
+    const phone = "63203478";
+    await fetch(`https://api.callmebot.com/whatsapp.php?phone=${phone}&text=${msg}&apikey=free`);
+  }
+
+  async function uploadProduct() {
+    const title = document.getElementById("product-title").value;
+    const desc = document.getElementById("product-description").value;
+    const file = document.getElementById("product-image").files[0];
+    if (!file) return alert("No image selected");
+
+    const formData = new FormData();
+    formData.append("image", file);
+    const imgbbKey = "94515aeb59eb9ab03d29ddb6a764169a";
+    const res = await fetch(`https://api.imgbb.com/1/upload?key=${imgbbKey}`, {
+      method: "POST",
+      body: formData
+    });
+    const result = await res.json();
+    const url = result.data.url;
+    await addDoc(collection(db, "products"), {
+      title,
+      description: desc,
+      image: url
+    });
+    alert("Product uploaded");
+    loadProducts();
+  }
+
+  async function uploadReview() {
+    const text = document.getElementById("review-text").value;
+    const file = document.getElementById("review-image").files[0];
+    let url = "";
+    if (file) {
+      const formData = new FormData();
+      formData.append("image", file);
+      const imgbbKey = "94515aeb59eb9ab03d29ddb6a764169a";
+      const res = await fetch(`https://api.imgbb.com/1/upload?key=${imgbbKey}`, {
+        method: "POST",
+        body: formData
+      });
+      const result = await res.json();
+      url = result.data.url;
+    }
+    await addDoc(collection(db, "reviews"), { text, image: url });
+    alert("Review posted!");
+    loadReviews();
+  }
+
+  async function loginAdmin() {
+    const email = document.getElementById("admin-email").value;
+    const password = document.getElementById("admin-password").value;
+    try {
+      await signInWithEmailAndPassword(auth, email, password);
+      alert("Admin login successful");
+      document.getElementById("admin-panel").style.display = "block";
+      document.getElementById("admin-login").style.display = "none";
+      loadDashboard();
+    } catch {
+      alert("Login failed");
+    }
+  }
+
+  async function loadDashboard() {
+    const orders = await getDocs(collection(db, "orders"));
+    const list = document.getElementById("order-list");
+    list.innerHTML = "";
+    orders.forEach(doc => {
+      const o = doc.data();
+      list.innerHTML += `
+        <div class="order">
+          <strong>${o.title}</strong><br/>
+          ${o.name} – ${o.ref} <em>(${o.status})</em>
+        </div>`;
+    });
+  }
+
+  document.getElementById("contact-form").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const name = e.target.name.value;
+    const email = e.target.email.value;
+    const message = e.target.message.value;
+    await addDoc(collection(db, "messages"), {
+      name, email, message, timestamp: serverTimestamp()
+    });
+    notifyWhatsApp(name, "Contact Message", message);
+    alert("Message sent!");
+    e.target.reset();
+  });
+
+  loadProducts();
+  loadReviews();
+</script>
+
+<script>
+  function showSection(id) {
+    document.querySelectorAll(".section").forEach(s => s.classList.remove("active"));
+    document.getElementById(id).classList.add("active");
+  }
+
+  function toggleTheme() {
+    document.body.classList.toggle("dark-mode");
+  }
+</script>
+</body>
+</html>
